@@ -1,0 +1,6 @@
+<resources>
+    <color name="colorPrimary">#0D47A1</color>
+    <color name="colorOnPrimary">#FFFFFF</color>
+    <color name="colorBackground">#FFFFFF</color>
+    <color name="splashBackground">#0D47A1</color>
+</resources>

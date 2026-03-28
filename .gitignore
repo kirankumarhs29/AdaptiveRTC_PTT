@@ -1,0 +1,47 @@
+# ──────────────────────────────────────────
+# AdaptiveRTC — CMake build output
+# ──────────────────────────────────────────
+AdaptiveRTC/build/
+
+# ──────────────────────────────────────────
+# NetSense AI — Gradle / Android build output
+# ──────────────────────────────────────────
+NetSense AI/build/
+NetSense AI/androidApp/build/
+NetSense AI/app/build/
+NetSense AI/shared/build/
+NetSense AI/.gradle/
+NetSense AI/.idea/
+NetSense AI/app/.cxx/
+NetSense AI/shared/.cxx/
+
+# Local machine config (SDK paths differ per machine)
+NetSense AI/local.properties
+
+# ──────────────────────────────────────────
+# Compiled / binary artefacts (all modules)
+# ──────────────────────────────────────────
+*.class
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dll
+*.exe
+*.apk
+*.aab
+*.keystore
+*.jks
+
+# ──────────────────────────────────────────
+# OS / IDE
+# ──────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.user
+*.suo
+.vs/
+
+# Gradle wrapper JARs are kept (needed to build without local Gradle install)
+# !gradle/wrapper/gradle-wrapper.jar

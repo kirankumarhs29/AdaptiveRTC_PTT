@@ -1,0 +1,15 @@
+<resources>
+    <style name="Theme.NetSenseMeshApp" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
+        <item name="android:windowBackground">@color/colorBackground</item>
+        <item name="android:statusBarColor">?attr/colorPrimary</item>
+        <item name="android:windowSplashScreenBackground">@color/splashBackground</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_app_icon</item>
+        <item name="android:windowSplashScreenAnimationDuration">250</item>
+    </style>
+
+    <style name="Theme.NetSenseMeshApp.Splash" parent="Theme.NetSenseMeshApp">
+        <item name="android:windowBackground">@drawable/splash_screen</item>
+    </style>
+</resources>

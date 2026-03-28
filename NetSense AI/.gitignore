@@ -1,0 +1,28 @@
+# Gradle / Kotlin
+.gradle/
+**/build/
+**/.kotlin/
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+local.properties
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+
+# CMake / native build outputs
+CMakeFiles/
+CMakeCache.txt
+cmake-build-*/
+out/
+app/.cxx/
+**/.externalNativeBuild/
+
+# Logs / temp
+*.log
+*.tmp
+
+# VS Code local settings
+.vscode/
