@@ -30,6 +30,7 @@ add_library(adaptive_rtc STATIC
     src/ecs_detector.cpp
     src/rate_controller.cpp
     src/jitter_buffer.cpp
+    src/adaptive_jitter_buffer.cpp
     src/sender.cpp
     src/receiver.cpp
     
@@ -83,6 +84,9 @@ set(RTC_TEST_SOURCES
     test/test_rtt_tracker.cpp
     test/test_ecs_detector.cpp
     test/test_jitter_buffer.cpp
+    test/test_rate_controller.cpp
+    test/test_network_simulator.cpp
+    test/test_adaptive_jitter_buffer.cpp
     test/integration_test.cpp
 )
 

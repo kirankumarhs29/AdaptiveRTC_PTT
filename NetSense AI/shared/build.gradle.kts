@@ -33,6 +33,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
 }
 
 kotlin {
@@ -60,6 +64,12 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
+            }
+        }
+        val androidUnitTest by getting {
+            dependencies {
+                implementation("junit:junit:4.13.2")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
             }
         }
     }
