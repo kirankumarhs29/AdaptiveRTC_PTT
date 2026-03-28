@@ -200,4 +200,78 @@ object JitterBridge {
 
     /** @return current playout delay in milliseconds. */
     private external fun nativeJbDepthMs(): Int
+
+    /** @return RFC 3550 jitter estimate in milliseconds. */
+    private external fun nativeJbJitterMs(): Float
+
+    /** @return packet loss rate as a percentage (0.0–100.0). */
+    private external fun nativeJbLossRatePct(): Float
+
+    /** @return total AudioTrack underruns since last reset. */
+    private external fun nativeJbUnderrunCount(): Long
+
+    // ── Public stats accessors ────────────────────────────────────────────
+
+    /**
+     * RFC 3550 inter-arrival jitter estimate in milliseconds.
+     * Rises quickly on bursty Wi-Fi Direct; decays slowly (EWMA α = 1/16).
+     * Values below 5 ms indicate a stable link; above 30 ms expect choppy audio.
+     */
+    fun jitterMs(): Float {
+        if (!nativeAvailable) return 0f
+        return try {
+            nativeJbJitterMs()
+        } catch (e: UnsatisfiedLinkError) {
+            nativeAvailable = false
+            0f
+        }
+    }
+
+    /**
+     * Packet loss rate as a percentage (0.0–100.0).
+     * Computed as lost_at_pop / (received + lost_at_pop).
+     * Values above 5 % cause noticeable voice degradation.
+     */
+    fun lossRatePct(): Float {
+        if (!nativeAvailable) return 0f
+        return try {
+            nativeJbLossRatePct()
+        } catch (e: UnsatisfiedLinkError) {
+            nativeAvailable = false
+            0f
+        }
+    }
+
+    /**
+     * Total AudioTrack underruns since last [reset].
+     * Each underrun injects one PLC frame (~20 ms of attenuated audio).
+     * A rising count indicates the buffer target is too small for the current link.
+     */
+    fun underrunCount(): Long {
+        if (!nativeAvailable) return 0L
+        return try {
+            nativeJbUnderrunCount()
+        } catch (e: UnsatisfiedLinkError) {
+            nativeAvailable = false
+            0L
+        }
+    }
+
+    /**
+     * Snapshot of all jitter buffer metrics under a single lock.
+     * Safe to call from any thread; use for debug overlays or RTP stats callbacks.
+     */
+    data class Stats(
+        val depthMs: Int,
+        val jitterMs: Float,
+        val lossRatePct: Float,
+        val underrunCount: Long
+    )
+
+    fun getStats(): Stats = Stats(
+        depthMs      = depthMs(),
+        jitterMs     = jitterMs(),
+        lossRatePct  = lossRatePct(),
+        underrunCount = underrunCount()
+    )
 }

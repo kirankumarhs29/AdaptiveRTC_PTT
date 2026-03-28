@@ -47,6 +47,7 @@ add_library(adaptive_rtc_jni SHARED
     ${ADAPTIVE_RTC_DIR}/src/rate_controller.cpp
     ${ADAPTIVE_RTC_DIR}/src/packet.cpp
     ${ADAPTIVE_RTC_DIR}/src/jitter_buffer.cpp
+    ${ADAPTIVE_RTC_DIR}/src/adaptive_jitter_buffer.cpp
     ${ADAPTIVE_RTC_DIR}/src/metrics_logger.cpp
     ${ADAPTIVE_RTC_DIR}/src/receiver.cpp
     ${ADAPTIVE_RTC_DIR}/src/sender.cpp
