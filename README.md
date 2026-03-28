@@ -73,8 +73,9 @@ combineBoth/
 | **RtpManager** | `shared/.../RtpManager.kt` | Master voice orchestrator — 20 ms send/receive loops |
 | **EcsBridge** | `shared/.../EcsBridge.kt` | JNI facade for rate control and congestion analysis |
 | **JitterBridge** | `shared/.../JitterBridge.kt` | JNI facade for adaptive jitter buffer |
-| **CallManager** | `shared/.../CallManager.kt` | Push-to-talk call lifecycle |
-| **SignalingManager** | `shared/.../SignalingManager.kt` | PING/PONG heartbeat → RTT samples |
+| **CallManager** | `shared/.../CallManager.kt` | Push-to-talk call lifecycle with ACK/retry state machine |
+| **SignalingManager** | `shared/.../SignalingManager.kt` | PING/PONG heartbeat → RTT samples; secure handshake |
+| **MeshManager** | `shared/.../MeshManager.kt` | BLE peer manager — health monitor, reconnect, encryption |
 | **ECSDetector** | `AdaptiveRTC/src/ecs_detector.cpp` | Detects BUILDING / IMMINENT congestion from delay trend |
 | **RTTTracker** | `AdaptiveRTC/src/rtt_tracker.cpp` | µs-precision RTT statistics and spike detection |
 | **RateController** | `AdaptiveRTC/src/rate_controller.cpp` | Token-bucket gate, multipliers: 0.75 / 0.90 / 1.05 |
@@ -112,11 +113,14 @@ DatagramSocket.receive()
 Device A                            Device B
    │── BLE advertise ──────────────────▶│
    │◀── BLE scan + connect ─────────────│
-   │── SignalingManager PROBE ──────────▶│
+   │── KEY_EXCHANGE (EC public key) ────▶│  ← ECDH handshake
+   │◀── KEY_ACK (EC public key) ────────│  ← AES-128/GCM key derived
+   │── PROBE ──────────────────────────▶│  ← up to 8× @ 600 ms
    │◀── PROBE_ACK ──────────────────────│
-   │── (TRANSPORT_READY) ───────────────▶│
+   │── TRANSPORT_READY ────────────────▶│  ← retried with backoff
+   │◀── TRANSPORT_READY_ACK ────────────│  ← 10 s timeout
    │◀─────── Wi-Fi Direct negotiation ──│
-   │════════ UDP RTP audio stream ══════│
+   │════════ UDP RTP audio stream ══════│  ← all BLE data AES/GCM encrypted
 ```
 
 ---
@@ -227,6 +231,20 @@ cd "NetSense AI"
 - **JNI over sockets**: ECS calls average < 1 µs, negligible in a 20 ms frame budget. Unix-domain sockets would add 50–200 µs per frame.
 - **No server**: Discovery uses BLE; audio uses Wi-Fi Direct UDP. Zero infrastructure required.
 - **AdaptiveRTC source unchanged**: The C++ engine is compiled as-is into the Android `.so`; no fork or modification needed.
+- **End-to-end encryption**: Every BLE message is encrypted with AES-128/GCM using a session key derived via ECDH (EC P-256). Each message carries a unique 12-byte nonce; plaintext is never sent over the air.
+- **Reliable BLE messaging**: BLE characteristic writes use a per-message ACK + retry loop — 3 retries with a 2.2 s timeout each — and report `DeliveryStatus` (Queued → Sent → Delivered / TimedOut / Failed) back to the UI.
+- **Peer health & auto-reconnect**: A background health loop pings every peer every 7 s. If no response arrives within 14 s the peer is marked `Degraded`; at 22 s it becomes `Unreachable`. Reconnect is attempted up to 4 times with exponential backoff (1.6 s × attempt).
+
+---
+
+## What Is Not Yet Implemented
+
+The items below are the only genuinely missing capabilities. Everything else listed in older planning docs has been built.
+
+| Gap | Detail |
+|-----|--------|
+| **Android instrumented tests** | No `androidTest/` suite exists. Two-device BLE + call flow is validated manually only. The AdaptiveRTC C++ engine has its own unit + simulator tests (`rtc_tests`), but there are no automated end-to-end Android tests. |
+| **Cloud analytics & crash reporting** | Logging is local-file-only (`AppLogger` rotates `ui.log` / `ui.log.1` at 2 MB; `core.log` for C++ side). Logs must be pulled via ADB. No Firebase, Crashlytics, or remote upload is wired up. |
 
 ---
 
